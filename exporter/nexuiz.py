@@ -8,7 +8,7 @@ Tooltip: 'Export to Nexuiz map format'
 """
 
 __author__ = 'sergey bashkirov'
-__version__ = '0.19'
+__version__ = '0.20'
 __email__ = "bashkirov.sergey@gmail.com"
 __bpydoc__ = \
 """
@@ -24,7 +24,7 @@ parameters for texture shaders and light properties.
 import Blender
 from Blender import Draw, BGL, Window
 from Blender.BGL import *
-from nexify import CNexify
+from nex_nexify import CNexify
 # Debuggind tools.
 # import rpdb2; rpdb2.start_embedded_debugger( "1" )
 
