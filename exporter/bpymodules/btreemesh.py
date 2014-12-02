@@ -1,6 +1,6 @@
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.17'
+# __version__ = '0.18'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
@@ -180,10 +180,10 @@ class CBTreeMesh:
         return cx, cy, cz
         
     def normalize( self, x, y, z ):
-        l = nsqrt( ( x * x + y * y + z * z ) * self.scale * self.scale )
-        return x * self.scale * self.scale / l, \
-               y * self.scale * self.scale / l, \
-               z * self.scale * self.scale / l
+        l = nsqrt( x * x + y * y + z * z )
+        return x / l, \
+               y / l, \
+               z / l
     
     
     def cut( self, face ):
@@ -397,7 +397,45 @@ class CBTreeMesh:
             pass
         return meshes
     
+
+
+# /*
+# ComputeAxisBase()
+# computes the base texture axis for brush primitive texturing
+# note: ComputeAxisBase here and in editor code must always BE THE SAME!
+# warning: special case behaviour of atan2( y, x ) <-> atan( y / x ) might not be the same everywhere when x == 0
+# rotation by (0,RotY,RotZ) assigns X to normal
+# */
+
+# void ComputeAxisBase( vec3_t normal, vec3_t texX, vec3_t texY )
+# {
+    # vec_t	RotY, RotZ;
     
+    
+    # /* do some cleaning */
+    # if( fabs( normal[ 0 ] ) < 1e-6 )
+        # normal[ 0 ]= 0.0f;
+    # if( fabs( normal[ 1 ] ) < 1e-6 )
+        # normal[ 1 ]=0.0f;
+    # if( fabs( normal[ 2 ] ) < 1e-6 )
+        # normal[ 2 ] = 0.0f;
+    
+    # /* compute the two rotations around y and z to rotate x to normal */
+    # RotY = -atan2( normal[ 2 ], sqrt( normal[ 1 ] * normal[ 1 ] + normal[ 0 ] * normal[ 0 ]) );
+    # RotZ = atan2( normal[ 1 ], normal[ 0 ] );
+    
+    # /* rotate (0,1,0) and (0,0,1) to compute texX and texY */
+    # texX[ 0 ] = -sin( RotZ );
+    # texX[ 1 ] = cos( RotZ );
+    # texX[ 2 ] = 0;
+    
+    # /* the texY vector is along -z (t texture coorinates axis) */
+    # texY[ 0 ] = -sin( RotY ) * cos( RotZ );
+    # texY[ 1 ] = -sin( RotY ) * sin( RotZ );
+    # texY[ 2 ] = -cos( RotY );
+# }
+
+
     
     def transformUv( self, face, uv ):
         # I don't know how it works exactly. And the following code is just 
@@ -410,54 +448,35 @@ class CBTreeMesh:
             self.nprint( "transformUv: zero area face, skipping calculations." )
             return 0, 0, 0, 1, 1
         nx, ny, nz = self.normalize( nx, ny, nz )
-        nx, ny, nz = nx / self.scale, \
-                     ny / self.scale, \
-                     nz / self.scale
-        nxa, nya, nza = abs(nx), abs(ny), abs(nz)
-        # (Oxy, Oxz, Oyz)
-        ox0 = [ 1, 0, 0 ]
-        oy0 = [ 0, 1, 0 ]
-        n0  = [ 0, 0, 1 ]
-        if ( nxa >= nya ) and ( nxa >= nza ):
-            ox0 = [ 0, 1, 0 ]
-            oy0 = [ 0, 0, 1 ]
-            n0 = [ 1, 0, 0 ]
-        elif ( nya >= nxa ) and ( nya >= nza ):
-            ox0 = [ 1, 0, 0 ]
-            oy0 = [ 0, 0, 1 ]
-            n0 = [ 0, 1, 0 ]
-        elif ( nza >= nxa ) and ( nza >= nya ):
-            ox0 = [ 1, 0, 0 ]
-            oy0 = [ 0, 1, 0 ]
-            n0 = [ 0, 0, 1 ]
-        # Looking for point 0 by intersecting face plane with n0.
-        r0x, r0y, r0z = float( self.verts[ face[0] ][0] ), \
-                        float( self.verts[ face[0] ][1] ), \
-                        float( self.verts[ face[0] ][2] )
-        t = ( r0x * nx + r0y * ny + r0z * nz ) / ( n0[0] * nx + n0[1] * ny + n0[2] * nz )
-        Ox, Oy, Oz = n0[0] * t, n0[1] * t, n0[2] * t
-        # Project ox0 on face plane to get ox using face normal.
-        ox = [ 0, 0, 0 ]
-        d = nx * ox0[0] + ny * ox0[1] + nz * ox0[2]
-        ox[0], ox[1], ox[2] = ox0[0] - d * nx, ox0[1] - d * ny, ox0[2] - d * nz
-        # make ox unit length.
-        l = math.sqrt( ox[0] * ox[0] + ox[1] * ox[1] + ox[2] * ox[2] )
-        for i in range(3):
-            ox[i] = ox[i] / l
-        # Looking for oy as projection.
-        # In general case ox and oy wouldn't be perpendicular.
-        oy = [ 0, 0, 0 ]
-        d = nx * oy0[0] + ny * oy0[1] + nz * oy0[2]
-        oy[0], oy[1], oy[2] = oy0[0] - d * nx, oy0[1] - d * ny, oy0[2] - d * nz
-        # Doing ox and oy perpendicular using cross product twice.
-        buf_n = [ 0, 0, 0 ]
-        buf_n[0], buf_n[1], buf_n[2] = self.cross( ox[0], ox[1], ox[2], oy[0], oy[1], oy[2] )
-        oy[0], oy[1], oy[2] = self.cross( buf_n[0], buf_n[1], buf_n[2], ox[0], ox[1], ox[2] )
-        # make oy unit length.
-        l = math.sqrt( oy[0] * oy[0] + oy[1] * oy[1] + oy[2] * oy[2] )
-        for i in range(3):
-            oy[i] = oy[i] / l
+
+
+        # Texture reference frame origin is just ( 0, 0, 0 ) :) Thanks to divVerent !!!!!
+        Ox, Oy, Oz = 0.0, 0.0, 0.0
+
+        if( abs( nx ) < 1e-6 ):
+            nx = 0.0
+        if( abs( ny ) < 1e-6 ):
+            ny = 0.0
+        if( abs( nz ) < 1e-6 ):
+            nz = 0.0
         
+        # compute the two rotations around y and z to rotate x to normal
+        RotY = -math.atan2( nz, nsqrt( ny * ny + nx * nx ) )
+        RotZ = math.atan2( ny, nx )
+        
+        # rotate (0,1,0) and (0,0,1) to compute texX and texY
+        ox = [ -math.sin( RotZ ), \
+                math.cos( RotZ ), \
+                0.0 ]
+        
+        # the texY vector is along -z (t texture coorinates axis)
+        oy = [ -math.sin( RotY ) * math.cos( RotZ ), \
+               -math.sin( RotY ) * math.sin( RotZ ), \
+               -math.cos( RotY ) ]
+
+
+
+
         # Rename some variables to fit external soft output.
         oxx, oxy, oxz = ox[0], ox[1], ox[2]
         oyx, oyy, oyz = oy[0], oy[1], oy[2]
