@@ -32,6 +32,18 @@ class AseWriter():
       
       print_boxed( file_name )
       
+      # Modifying object world matrix
+      scn = Blender.Scene.GetCurrent()
+      objs = scn.objects
+      objSave = None
+      mSave = None
+      for obj in scn.objects:
+         if ( obj.getName() == mesh_name ):
+            mSave = obj.getMatrix().copy()
+            objSave = obj
+            obj.setMatrix( obj.getMatrix().identity() )
+            obj.makeDisplayList()
+
       # Export ASE.
       global export_mesh_name
       export_mesh_name = mesh_name
@@ -40,6 +52,11 @@ class AseWriter():
       write( file_name )
       del export_mesh_name
       del guiTable
+      
+      if objSave != None:
+         objSave.setMatrix( mSave )
+         objSave.makeDisplayList()
+
 
 
 #============================================
@@ -119,6 +136,7 @@ def set_up(scn, exp_list, matTable, worldTable):
         for obj in scn.objects:
             if ( obj.getName() == export_mesh_name ):
                 objects.append( obj )
+                break
         if ( len( objects ) != 1 ):
             print( "Wrong objects number: %i" % len(objects) )
     set_lists(exp_list, objects, matTable, worldTable)

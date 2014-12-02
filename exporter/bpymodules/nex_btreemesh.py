@@ -630,7 +630,7 @@ class CBTreeMesh:
                                     name, ext = os.path.splitext( name )
                                     self.nprint( "texture is: '" + name + "', file type is: " + ext[ 1: ] )
                                 else:
-                                    self.nprint( "Some misterious texture file path: '" + texture + "'" )
+                                    self.nprint( "Some misterious texture file path: '" + name + "'" )
                                     name = 'common/caulk'
                                 texture = [ name, sz[0], sz[1] ]
                             else:

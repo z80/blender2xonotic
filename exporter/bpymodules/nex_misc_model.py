@@ -29,6 +29,7 @@ class MiscModel():
             prop_value = prop.getData()
             if ( prop_name == 'ref_to' ):
                 ref_name = prop_value
+                # Overwrite model_name.
                 model_name = "models/nexify/" + prop_value + ".ase"
                 make_model = 0
             elif ( prop_name != 'classname' ):
@@ -37,7 +38,7 @@ class MiscModel():
         
         stri += ( '    "model" "%s"\n' % ( model_name ) )
         
-        # Look for reference object.
+        # Look for reference object. If ref_to points to not existing object, ASE will be created.
         if ( not make_model ):
             scn = Blender.Scene.GetCurrent()
             objects = scn.objects
@@ -52,40 +53,33 @@ class MiscModel():
             
         # Making model itself.
         if ( make_model ):
-            stri +=   '    "origin" "0.000 0.000 0.000"\n'
-            stri += ( '    "modelscale" "%.6f"\n' % ( self.nexify.g_scale ) )
             w = nex_ase_model.AseWriter( file_name, name )
             del w
-        else:
-            # Calculate relative transformation.
-            refM = ref_obj.matrixWorld.copy()
-            M    = self.obj.matrixWorld.copy()
-            refM.invert()
-            # First find relative matrix.
-            m = refM * M
-            # Extract translation.
-            rel_r = m.translationPart()
-            rel_x = self.nexify.g_scale * rel_r.x
-            rel_y = self.nexify.g_scale * rel_r.y
-            rel_z = self.nexify.g_scale * rel_r.z
-            # Extract scale.
-            scale_r = m.scalePart()
-            scale_x = self.nexify.g_scale * scale_r.x
-            scale_y = self.nexify.g_scale * scale_r.y
-            scale_z = self.nexify.g_scale * scale_r.z
-            # Extract rotation.
-            rotM = m.rotationPart()
-            e = rotM.toEuler()
-            yaw   = e.x
-            pitch = e.y
-            roll  = e.z
-                
-            # From relative matrix calculate displacement, zoom and rotation
-            stri += ( '    "origin" "%.6f %.6f %.6f"\n' % ( rel_x, rel_y, rel_z ) )
-            stri += ( '    "modelscale" "%.6f"\n' % ( scale_z ) )
-            # stri += ( '    "modelscale_vec" "%.6f"\n' % ( self.nexify.g_scale * scale_x, self.nexify.g_scale * scale_y, self.nexify.g_scale * scale_z ) )
-            stri += ( '    "angle" "%.6f"\n' % ( roll ) )
-            # stri += ( '    "angles" "%.6f"\n' % ( pitch, yaw, roll ) )
+        # Calculate relative transformation.
+        m = self.obj.getMatrix().copy()
+        # Extract translation.
+        rel_r = m.translationPart()
+        rel_x = self.nexify.g_scale * rel_r.x
+        rel_y = self.nexify.g_scale * rel_r.y
+        rel_z = self.nexify.g_scale * rel_r.z
+        # Extract scale.
+        scale_r = m.scalePart()
+        scale_x = self.nexify.g_scale * scale_r.x
+        scale_y = self.nexify.g_scale * scale_r.y
+        scale_z = self.nexify.g_scale * scale_r.z
+        # Extract rotation.
+        rotM = m.rotationPart()
+        e = rotM.toEuler()
+        yaw   = e.x
+        pitch = e.y
+        roll  = e.z
+            
+        # From relative matrix calculate displacement, zoom and rotation
+        stri += ( '    "origin" "%.6f %.6f %.6f"\n' % ( rel_x, rel_y, rel_z ) )
+        # stri += ( '    "modelscale" "%.6f"\n' % ( scale_z ) )
+        stri += ( '    "modelscale_vec" "%.6f %.6f %.6f"\n' % ( scale_x, scale_y, scale_z ) )
+        # stri += ( '    "angle" "%.6f"\n' % ( roll ) )
+        stri += ( '    "angles" "%.6f %.6f %.6f"\n' % ( pitch, roll, yaw ) )
         stri += tail
         
         

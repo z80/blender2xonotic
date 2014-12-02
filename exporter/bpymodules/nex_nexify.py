@@ -24,7 +24,7 @@ import math
 import string
 from os import path
 # My modules used for export.
-import nex_btreemesh, nex_misc_model, nex_info_all
+import nex_btreemesh, nex_misc_model, nex_info_all, nex_item_all
 
 class CNexify:
     def __init__( self ):
@@ -221,7 +221,7 @@ class CNexify:
                         entities.append( obj )
                         skipObject = 1
                         break
-                    else:
+                    elif ( prop_name[ 0:6 ] != 'texture' ):
                         # Add worldspawn entity properties.
                         keys.append( prop_name )
                         vals.append( prop.getData() )
@@ -286,17 +286,10 @@ class CNexify:
             obj       = entities[i]
             if classname == "misc_model":
                 w = nex_misc_model.MiscModel( obj, self )
-            elif classname == "info_location" or \
-                 classname == "info_notnull" or \
-                 classname == "info_player_attacker" or \
-                 classname == "info_player_deathmatch" or \
-                 classname == "info_player_defender" or \
-                 classname == "info_player_race" or \
-                 classname == "info_player_team1" or \
-                 classname == "info_player_team2" or \
-                 classname == "info_player_team3" or \
-                 classname == "info_player_team4":
+            elif classname[ 0:5 ] == "info_":
                 w = nex_info_all.InfoAll( obj, self )
+            elif classname[ 0:5 ] == "item_":
+                w = nex_info_all.ItemAll( obj, self )
             else:
                 w = None
                 
