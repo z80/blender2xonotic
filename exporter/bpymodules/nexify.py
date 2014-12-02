@@ -8,7 +8,7 @@
 # """
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.16'
+# __version__ = '0.17'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
@@ -256,11 +256,11 @@ class CNexify:
     def writeLamp( self, file, obj ):
         lamp = obj.data
         stri = '{\n    "classname" "light"\n'
-        stri = stri + '    "light" %.6f\n' % ( lamp.dist * self.g_scale )
+        stri = stri + '    "light" %.4f\n' % ( lamp.dist * self.g_scale )
         r = obj.getLocation( 'worldspace' )
         x, y, z = self.nexifyVector( r[0], r[1], r[2] )
-        stri = stri + ( '    "origin" "%.8f %.8f %.8f"\n' % (x, y, z) )
-        stri = stri + ( '    "_color" "%.6f %.6f %.6f"\n' % tuple(lamp.col) )
+        stri = stri + ( '    "origin" "%.4f %.4f %.4f"\n' % (x, y, z) )
+        stri = stri + ( '    "_color" "%.4f %.4f %.4f"\n' % tuple(lamp.col) )
         stri = stri + ( '    "style" "0"\n' )
         propsList = obj.getAllProperties()
         has_target = 0
@@ -283,8 +283,8 @@ class CNexify:
             elif ( name == "radius" ):
                 radius = prop.getData()
         if ( has_target ):
-            stri = stri + ( '    "target" "%.8f %.8f %.8f"' % ( target_x, target_y, target_z ) )
-            stri = stri + ( '    "radius" "%.8f"\n' % ( radius ) )
+            stri = stri + ( '    "target" "%.4f %.4f %.4f"' % ( target_x, target_y, target_z ) )
+            stri = stri + ( '    "radius" "%.4f"\n' % ( radius ) )
         
         stri = stri + "}\n"
         file.write( stri )
@@ -356,7 +356,7 @@ class CNexify:
                         vect = Mathutils.Vector( (x, y, z) ) * matr
                         x, y, z = self.nexifyVector( vect.x, vect.y, vect.z )
                         
-                        stri = stri + ( " ( %.8f %.8f %.8f %.8f %.8f )" % ( x, y, z, tu, tv ) )
+                        stri = stri + ( " ( %.4f %.4f %.4f %.4f %.4f )" % ( x, y, z, tu, tv ) )
                         
                         if ( j == u-1 ):
                             stri = stri + " )\n"

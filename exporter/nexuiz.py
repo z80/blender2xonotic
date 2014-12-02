@@ -8,7 +8,7 @@ Tooltip: 'Export to Nexuiz map format'
 """
 
 __author__ = 'sergey bashkirov'
-__version__ = '0.16'
+__version__ = '0.17'
 __email__ = "bashkirov.sergey@gmail.com"
 __bpydoc__ = \
 """

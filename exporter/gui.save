@@ -1,0 +1,39 @@
+Version:2.500000
+0.5000000.5000000.500000
+0.0000000.0000000.000000
+1bend
+0ExitExit exporter0.0000000.00000010.000000887644gui_exit000end
+6Exporter  to MAP format for Nexuiz community0.0000000.00000010.0000006456026020gui_instruction000end
+0PreparePrepares for export: checks is all meshes are convex0.0000000.00000010.0000008887644gui_prepare000end
+0ExportExports prepared scene to a MAP file0.0000000.00000010.00000016887644gui_export000end
+5Nexuiz absolute path0.0000000.00000010.00000015232014820c:/programs/nexuizgui_nexuizPath000end
+5MAP file name0.0000000.00000010.00000015229614820mymap.mapgui_fileName000end
+6Nexuiz absolute path0.0000000.00000010.0000001632812420Text000end
+6MAP file name0.0000000.00000010.0000001630411620Text_0000end
+232.0000000.0000001024.0000001522727620gui_scale000end
+6Scale factor0.0000000.00000010.0000001628010020Text_1000end
+20.3000000.0000001024.0000001522487620gui_extrudeHeight000end
+6Extrude height0.0000000.00000010.0000001625610020Text_2000end
+7downwards0.0000000.00000010.0000001522247620gui_extrudeDownwards000end
+6Extrude downwards0.0000000.00000010.0000001623210820Text_3000end
+7echo0.0000000.00000010.0000001522007620gui_echo000end
+6Console echo0.0000000.00000010.0000001620810820Text_4000end
+6Brief instruction:0.0000000.00000010.000000325369220Text_5000end
+6Exporter currently work with meshes, lights and nurbs surfaces.0.0000000.00000010.000000850435620Text_6000end
+6As far as meshes are converted into NetRadiant brushes they should be convex0.0000000.00000010.00000036850445220Text_7000end
+6Concave meshes are splitted into individual faces. Faces after that are extruded on "Extrude height" parameter (see below).0.0000000.00000010.000000848069220Text_8000end
+6As far as objects in NetRadiant may have properties different then objects in Blender game logic properties are used to store such params.0.0000000.00000010.000000845677220Text_9000end
+6Possible mesh params: ignore(BOOL), convex(BOOL)0.0000000.00000010.000000843231620Text_10000end
+6Possible light params: sun(BOOL), has_target(BOOL), target_x, target_y, target_z(FLOAT), radius(float)0.0000000.00000010.00000084086020Text_11000end
+6First press PREPARE, then press EXPORT.Exports prepared scene to a MAP file0.0000000.00000010.00000086448420Text_12000end
+6Due to Blender doesn't understand Radiant shaders one may use texture[i](STRING) properties, to overwrite texture files with shaders(i = material index).0.0000000.00000010.000000838485220Text_13000end
+6REMEMBER: textures are to be on ".../nexuiz/data/textures" subpath!0.0000000.00000010.00000088438820Text_14000end
+6Ver0.0000000.00000010.000000272242820Text_15000end
+6___0.0000000.00000010.000000304246020gui_version000end
+6Focre selected surf0.0000000.00000010.0000001617612420Text_16000end
+0Treat selected as surf when export0.0000000.00000010.00000015216821220gui_exportSurf000end
+6Overwrite texture0.0000000.00000010.000000161366020Text_17000end
+50.0000000.00000010.00000019213210420common/caulkgui_textureStri000end
+20.0000001.000000128.0000003921326020name_textureInd000end
+6material index0.0000000.00000010.0000003041408020Text_18000end
+0overOverwrite selected object texture with the following.0.0000000.00000010.0000001521323220gui_textureBtn000end

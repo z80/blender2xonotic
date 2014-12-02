@@ -1,6 +1,6 @@
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.16'
+# __version__ = '0.17'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
@@ -579,31 +579,35 @@ class CBTreeMesh:
             for i in range( len( materials ) ):
                 material = materials[ i ]
                 textures = material.getTextures()
-                if ( len(textures) > 0 ):
+                if ( ( textures ) and ( len(textures) > 0 ) and ( textures[0] != None ) ):
                     texture = textures[0].tex
                     if ( texture ):
                         image = texture.getImage()
-                        if ( image ):
+                        if ( image != None ):
                             name = image.getFilename().lower()
-                            sz = image.getSize()
-                            name = name.replace( '\\', '/' )
-                            # I need to cut off file extension and the 
-                            # beginning "c:\programs\nexuiz\data\textures\".
-                            tex_path = self.nexify.g_nexuiz_path.replace( '\\', '/' )
-                            if ( tex_path[ len(tex_path)-1 ] == '/' ):
-                                tex_path = tex_path[:(len(tex_path)-1)]
-                            tex_path = ( tex_path + "/data/textures/" ).lower()
-                            self.nprint( "tex_path is '" + tex_path + "'" )
-                            #os.path.relpath( tex_path, texture )
-                            # Texture in on correct path.
-                            if ( name.find( tex_path ) == 0 ):
-                                name = name[ len(tex_path): ]
-                                name, ext = os.path.splitext( name )
-                                self.nprint( "texture is: '" + name + "', file type is: " + ext[ 1: ] )
+                            if name and os.path.isfile( name ): 
+                                sz = image.getSize()
+                                name = name.replace( '\\', '/' )
+                                # I need to cut off file extension and the 
+                                # beginning "c:\programs\nexuiz\data\textures\".
+                                tex_path = self.nexify.g_nexuiz_path.replace( '\\', '/' )
+                                if ( tex_path[ len(tex_path)-1 ] == '/' ):
+                                    tex_path = tex_path[:(len(tex_path)-1)]
+                                tex_path = ( tex_path + "/data/textures/" ).lower()
+                                self.nprint( "tex_path is '" + tex_path + "'" )
+                                #os.path.relpath( tex_path, texture )
+                                # Texture in on correct path.
+                                if ( name.find( tex_path ) == 0 ):
+                                    name = name[ len(tex_path): ]
+                                    name, ext = os.path.splitext( name )
+                                    self.nprint( "texture is: '" + name + "', file type is: " + ext[ 1: ] )
+                                else:
+                                    self.nprint( "Some misterious texture file path: '" + texture + "'" )
+                                    name = 'common/caulk'
+                                texture = [ name, sz[0], sz[1] ]
                             else:
-                                self.nprint( "Some misterious texture file path: '" + texture + "'" )
-                                name = 'common/caulk'
-                            texture = [ name, sz[0], sz[1] ]
+                                self.nprint( "No such file: '" + name + "'" )
+                                texture = [ 'common/caulk', 32, 32 ]
                         else:
                             texture = [ 'common/caulk', 32, 32 ]
                     else:
@@ -890,15 +894,15 @@ class CBTreeMesh:
                 vv = [ float(self.verts[ face[2] ][0]), \
                        float(self.verts[ face[2] ][1]), \
                        float(self.verts[ face[2] ][2]) ]
-                stri += '        ( %.3f %.3f %.3f ) ' % ( vv[0], vv[1], vv[2] )
+                stri += '        ( %.4f %.4f %.4f ) ' % ( vv[0], vv[1], vv[2] )
                 vv = [ float(self.verts[ face[1] ][0]), \
                        float(self.verts[ face[1] ][1]), \
                        float(self.verts[ face[1] ][2]) ]
-                stri += '( %.3f %.3f %.3f ) ' % ( vv[0], vv[1], vv[2] )
+                stri += '( %.4f %.4f %.4f ) ' % ( vv[0], vv[1], vv[2] )
                 vv = [ float(self.verts[ face[0] ][0]), \
                        float(self.verts[ face[0] ][1]), \
                        float(self.verts[ face[0] ][2]) ]
-                stri += '( %.3f %.3f %.3f ) ' % ( vv[0], vv[1], vv[2] )
+                stri += '( %.4f %.4f %.4f ) ' % ( vv[0], vv[1], vv[2] )
                 stri += texture + ' '
                 x, y, ang, w, h = self.transformUv( face, faceUv )
                 stri += '%.4f %.4f %.4f %.4f %.4f 0 0 0\n' % ( x, y, ang, w, h )
@@ -929,15 +933,15 @@ class CBTreeMesh:
                 vv = [ pl.verts[0][0], \
                        pl.verts[0][1], \
                        pl.verts[0][2] ]
-                stri += '        ( %.3f %.3f %.3f ) ' % ( vv[0], vv[1], vv[2] )
+                stri += '        ( %.4f %.4f %.4f ) ' % ( vv[0], vv[1], vv[2] )
                 vv = [ pl.verts[1][0], \
                        pl.verts[1][1], \
                        pl.verts[1][2] ]
-                stri += '( %.3f %.3f %.3f ) ' % ( vv[0], vv[1], vv[2] )
+                stri += '( %.4f %.4f %.4f ) ' % ( vv[0], vv[1], vv[2] )
                 vv = [ pl.verts[2][0], \
                        pl.verts[2][1], \
                        pl.verts[2][2] ]
-                stri += '( %.3f %.3f %.3f ) ' % ( vv[0], vv[1], vv[2] )
+                stri += '( %.4f %.4f %.4f ) ' % ( vv[0], vv[1], vv[2] )
                 stri += texture + ' '
                 x, y, ang, w, h = self.transformUv( pl.face, pl.faceUv )
                 stri += '%.4f %.4f %.4f %.4f %.4f 0 0 0\n' % ( x, y, ang, w, h )
@@ -970,7 +974,7 @@ class CBTreeMesh:
                     vv = [ float(self.verts[ n ][0]), \
                            float(self.verts[ n ][1]), \
                            float(self.verts[ n ][2]) ]
-                    stri += '( %.3f %.3f %.3f ) ' %( vv[0], vv[1], vv[2] )
+                    stri += '( %.4f %.4f %.4f ) ' %( vv[0], vv[1], vv[2] )
                 if ( len( self.textures ) > faceUv[0][2] ):
                     texture  = self.textures[ faceUv[0][2] ][ 0 ]
                 else:
@@ -1046,12 +1050,12 @@ class CBTreeMesh:
                     vv = [ float(self.verts[ind1][0]), \
                            float(self.verts[ind1][1]), \
                            float(self.verts[ind1][2]) ]
-                    stri += '( %.3f %.3f %.3f ) ' %( vv[0], vv[1], vv[2] )
+                    stri += '( %.4f %.4f %.4f ) ' %( vv[0], vv[1], vv[2] )
                     vv = [ float(self.verts[ind2][0]), \
                            float(self.verts[ind2][1]), \
                            float(self.verts[ind2][2]) ]
-                    stri += '( %.3f %.3f %.3f ) ' %( vv[0], vv[1], vv[2] )
-                    stri += '( %.3f %.3f %.3f ) ' %( v[0], v[1], v[2] )
+                    stri += '( %.4f %.4f %.4f ) ' %( vv[0], vv[1], vv[2] )
+                    stri += '( %.4f %.4f %.4f ) ' %( v[0], v[1], v[2] )
                     texture = 'common/caulk'
                     stri += texture + ' '
                     x, y, ang, w, h = 0, 0, 0, 1, 1
