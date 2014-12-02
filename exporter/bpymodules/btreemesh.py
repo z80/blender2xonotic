@@ -1,6 +1,6 @@
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.13'
+# __version__ = '0.14'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
@@ -69,8 +69,8 @@ class CBTreeMesh:
         
         # It's of long type, not float!
         self.scale = 65536L
-        self.planeCosDiff  = long( math.cos( (90 - 2.5) / 180 * 3.1415926535 ) * self.scale )
-        self.planeCosIdent = long( math.cos( 2.5 / 180 * 3.1415926535 ) * self.scale )
+        self.planeCosDiff  = long( math.cos( (90.0 - 3.0) / 180.0 * 3.1415926535 ) * self.scale )
+        self.planeCosIdent = long( math.cos( 3.0 / 180.0 * 3.1415926535 ) * self.scale )
     
     
     

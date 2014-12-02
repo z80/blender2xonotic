@@ -8,7 +8,7 @@
 # """
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.13'
+# __version__ = '0.14'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
