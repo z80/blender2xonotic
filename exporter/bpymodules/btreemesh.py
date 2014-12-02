@@ -1,6 +1,6 @@
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.14'
+# __version__ = '0.15'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
@@ -949,14 +949,14 @@ class CBTreeMesh:
         for i in range( len(self.faces) ):
             face = self.faces[i]
             faceUv = self.facesUv[i]
-            stri += '    // %s.%i\n' % ( self.name, self.faces.index(face) )
-            stri += '    {\n'
             nx, ny, nz = self.faceNormal( face )
             nSz = nsqrt( nx * nx + ny * ny + nz * nz )
             # Don't event try exporting zero area faces.
             if ( nSz == 0 ):
                 self.nprint( "writeSurf: zero area face, skipping calculations." )
                 continue
+            stri += '    // %s.%i\n' % ( self.name, self.faces.index(face) )
+            stri += '    {\n'
             # Normalized normal.
             nx, ny, nz = float(nx), float(ny), float(nz)
             nSz = float( nSz )

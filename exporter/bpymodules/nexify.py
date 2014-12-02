@@ -8,7 +8,7 @@
 # """
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.14'
+# __version__ = '0.15'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
@@ -352,6 +352,7 @@ class CNexify:
                             
                         pt = nurb[ptInd]
                         x, y, z, tu, tv = pt[0:5]
+                        tu, tv = float(j) / (u-1.0), float(i) / (v-1.0)
                         vect = Mathutils.Vector( (x, y, z) ) * matr
                         x, y, z = self.nexifyVector( vect.x, vect.y, vect.z )
                         
