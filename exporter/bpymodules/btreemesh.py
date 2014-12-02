@@ -1,6 +1,6 @@
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.15'
+# __version__ = '0.16'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
@@ -36,20 +36,21 @@ from os import path
 
 
 def nsqrt( L ):
-    x = long(L)
-    div = x
-    res = x
-    if ( x <= 0L ):
-        return 0L
-    while ( 1 ):
-        temp = x/div + div
-        div = temp / 2L + ( temp % 2L )
-        if ( res > div ):
-            res = div
-        else:
-            if ( L/res == res-1L ) and ( L % res == 0L ):
-                res -= 1L
-            return res
+    # x = long(L)
+    # div = x
+    # res = x
+    # if ( x <= 0L ):
+        # return 0L
+    # while ( 1 ):
+        # temp = x/div + div
+        # div = temp / 2L + ( temp % 2L )
+        # if ( res > div ):
+            # res = div
+        # else:
+            # if ( L/res == res-1L ) and ( L % res == 0L ):
+                # res -= 1L
+            # return res
+    return math.sqrt( L )
 
 
 class CBTreeMesh:
@@ -68,7 +69,7 @@ class CBTreeMesh:
         self.removeRemotePlanes = 0
         
         # It's of long type, not float!
-        self.scale = 65536L
+        self.scale = 65536.0
         self.planeCosDiff  = long( math.cos( (90.0 - 3.0) / 180.0 * 3.1415926535 ) * self.scale )
         self.planeCosIdent = long( math.cos( 3.0 / 180.0 * 3.1415926535 ) * self.scale )
     
@@ -141,9 +142,9 @@ class CBTreeMesh:
         verts = mesh.verts
         for vert in verts:
             v = vert.co * m
-            x, y, z = long( round( v.x * self.nexify.g_scale ) ), \
-                      long( round( v.y * self.nexify.g_scale ) ), \
-                      long( round( v.z * self.nexify.g_scale ) )
+            x, y, z = v.x * self.nexify.g_scale, \
+                      v.y * self.nexify.g_scale, \
+                      v.z * self.nexify.g_scale
             self.verts.append( [ x, y, z ] )
             
         self.triangulate()
@@ -268,9 +269,9 @@ class CBTreeMesh:
                             # I should estimate this error and use it in concave text here!!!
                             if ( d > d0 ):
                                 self.nprint( "face is concave:" )
-                                self.nprint( "face normal:  %d %d %d" % ( nx, ny, nz ) )
-                                self.nprint( "concave edge: %d %d %d" % ( x, y, z ) )
-                                self.nprint( "n * a: %d" % ( d ) )
+                                self.nprint( "face normal:  %.7f %.7f %.7f" % ( nx, ny, nz ) )
+                                self.nprint( "concave edge: %.7f %.7f %.7f" % ( x, y, z ) )
+                                self.nprint( "n * a: %.7f" % ( d ) )
                                 #a = c # Just raises an error I need stopping program here.
                                 return 0
         return 1
@@ -409,14 +410,14 @@ class CBTreeMesh:
             self.nprint( "transformUv: zero area face, skipping calculations." )
             return 0, 0, 0, 1, 1
         nx, ny, nz = self.normalize( nx, ny, nz )
-        nx, ny, nz = float(nx) / self.scale, \
-                     float(ny) / self.scale, \
-                     float(nz) / self.scale
+        nx, ny, nz = nx / self.scale, \
+                     ny / self.scale, \
+                     nz / self.scale
         nxa, nya, nza = abs(nx), abs(ny), abs(nz)
         # (Oxy, Oxz, Oyz)
         ox0 = [ 1, 0, 0 ]
         oy0 = [ 0, 1, 0 ]
-        n0 = [ 0, 0, 1 ]
+        n0  = [ 0, 0, 1 ]
         if ( nxa >= nya ) and ( nxa >= nza ):
             ox0 = [ 0, 1, 0 ]
             oy0 = [ 0, 0, 1 ]

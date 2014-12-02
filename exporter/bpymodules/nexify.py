@@ -8,7 +8,7 @@
 # """
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.15'
+# __version__ = '0.16'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
@@ -72,9 +72,9 @@ class CNexify:
 
 
     def nexifyVector( self, x, y, z ):
-        a = long( round( x * self.g_scale ) )
-        b = long( round( y * self.g_scale ) )
-        c = long( round( z * self.g_scale ) )
+        a = x * self.g_scale
+        b = y * self.g_scale
+        c = z * self.g_scale
         return a, b, c
 
 
@@ -259,7 +259,7 @@ class CNexify:
         stri = stri + '    "light" %.6f\n' % ( lamp.dist * self.g_scale )
         r = obj.getLocation( 'worldspace' )
         x, y, z = self.nexifyVector( r[0], r[1], r[2] )
-        stri = stri + ( '    "origin" "%d %d %d"\n' % (x, y, z) )
+        stri = stri + ( '    "origin" "%.8f %.8f %.8f"\n' % (x, y, z) )
         stri = stri + ( '    "_color" "%.6f %.6f %.6f"\n' % tuple(lamp.col) )
         stri = stri + ( '    "style" "0"\n' )
         propsList = obj.getAllProperties()
@@ -356,7 +356,7 @@ class CNexify:
                         vect = Mathutils.Vector( (x, y, z) ) * matr
                         x, y, z = self.nexifyVector( vect.x, vect.y, vect.z )
                         
-                        stri = stri + ( " ( %d %d %d %.8f %.8f )" % ( x, y, z, tu, tv ) )
+                        stri = stri + ( " ( %.8f %.8f %.8f %.8f %.8f )" % ( x, y, z, tu, tv ) )
                         
                         if ( j == u-1 ):
                             stri = stri + " )\n"
