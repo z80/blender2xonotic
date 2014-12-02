@@ -1,6 +1,6 @@
 
 # __author__ = 'sergey bashkirov'
-# __version__ = '0.18'
+# __version__ = '0.19'
 # __email__ = "bashkirov.sergey@gmail.com"
 # __bpydoc__ = \
 # """
@@ -478,39 +478,36 @@ class CBTreeMesh:
 
 
         # Rename some variables to fit external soft output.
-        oxx, oxy, oxz = ox[0], ox[1], ox[2]
-        oyx, oyy, oyz = oy[0], oy[1], oy[2]
+        xx, xy, xz = ox[0], ox[1], ox[2]
+        yx, yy, yz = oy[0], oy[1], oy[2]
         
         # Matrix for transferring x,y,z to u0,v0.
-        d = nx*(oxy*oyz-oxz*oyy)+oxx*(nz*oyy-ny*oyz)+(ny*oxz-nz*oxy)*oyx
-        A = [ [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0] ]
-        A[0][0] = (nz*oyy-ny*oyz) / d
-        A[0][1] = (nx*oyz-nz*oyx) / d
-        A[0][2] = (ny*oyx-nx*oyy) / d
-        A[0][3] = (nx*(oyy*Oz-oyz*Oy)-oyx*(ny*Oz-nz*Oy)-(nz*oyy-ny*oyz)*Ox) / d
-        A[1][0] = (ny*oxz-nz*oxy) / d
-        A[1][1] = (nz*oxx-nx*oxz) / d
-        A[1][2] = (nx*oxy-ny*oxx) / d
-        A[1][3] = (-nx*(oxy*Oz-oxz*Oy)+oxx*(ny*Oz-nz*Oy)+(nz*oxy-ny*oxz)*Ox) / d
-        A[2][0] = (oxy*oyz-oxz*oyy) / d
-        A[2][1] = (oxz*oyx-oxx*oyz) / d
-        A[2][2] = (oxx*oyy-oxy*oyx) / d
-        A[2][3] = (-oxx*(oyy*Oz-oyz*Oy)+oyx*(oxy*Oz-oxz*Oy)-(oxy*oyz-oxz*oyy)*Ox) / d
-        A[3][3] = (nx*(oxy*oyz-oxz*oyy)+oxx*(nz*oyy-ny*oyz)-(nz*oxy-ny*oxz)*oyx) / d
+        d = xx*(yy*(xx*yy-xy*yx)-yz*(xz*yx-xx*yz))+\
+            yx*(xz*(xz*yx-xx*yz)-xy*(xx*yy-xy*yx))+\
+            (xy*yz-xz*yy)*(xy*yz-xz*yy)
+        A = [ [ ( yy*(xx*yy-xy*yx)-yz*(xz*yx-xx*yz) ) / d, \
+                ( yz*(xy*yz-xz*yy)-yx*(xx*yy-xy*yx) ) / d, \
+                ( yx*(xz*yx-xx*yz)-yy*(xy*yz-xz*yy) ) / d ], \
+              [ ( xz*(xz*yx-xx*yz)-xy*(xx*yy-xy*yx) ) / d, \
+                ( xx*(xx*yy-xy*yx)-xz*(xy*yz-xz*yy) ) / d, \
+                ( xy*(xy*yz-xz*yy)-xx*(xz*yx-xx*yz) ) / d ], \
+              [ ( xy*yz-xz*yy ) / d, \
+                ( xz*yx-xx*yz ) / d, \
+                ( xx*yy-xy*yx ) / d ] ]
         # Calculating initial uv0
         xyz = []
         for i in range(3):
             x, y, z = float( self.verts[ face[i] ][0] ), \
                       float( self.verts[ face[i] ][1] ), \
                       float( self.verts[ face[i] ][2] )
-            xyz.append( [ x, y, z, 1 ] )
-        uv0 = [ [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ] ]
+            xyz.append( [ x, y, z ] )
+        uv0 = [ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ]
         for i in range(3):         # Vector number
-            for j in range(4):     # Coordinate number
-                for k in range(4): # Summing index
+            for j in range(3):     # Coordinate number
+                for k in range(3): # Summing index
                     # nprint( "A[%d][%d] * xyz[%d][%d] = " % ( j, k, i, k ) )
                     # nprint( "                          %.8f   *   %.8f" % ( A[j][k], xyz[i][k] ) )
-                    uv0[i][j] = uv0[i][j] + A[j][k] * xyz[i][k]
+                    uv0[i][j] += A[j][k] * xyz[i][k]
         # **********************************************
         # self.nprint( "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" )
         # self.nprint( "    checking coordinates transformation:" )
@@ -528,31 +525,33 @@ class CBTreeMesh:
         
         # Initial UV coordinates after transferring xyz to uv according 
         # to initial guess.
-        u0, v0 = uv0[0][0], uv0[0][1]
-        u1, v1 = uv0[1][0], uv0[1][1]
-        u2, v2 = uv0[2][0], uv0[2][1]
+        u01, v01 = uv0[0][0], uv0[0][1]
+        u02, v02 = uv0[1][0], uv0[1][1]
+        u03, v03 = uv0[2][0], uv0[2][1]
         # Real uv coordinates (it's necessary to multiply them on image size, I suppose):
-        if ( len( self.textures ) > uv[0][0] ):
+        if ( len( self.textures ) > uv[0][2] ):
             texture, w, h = self.textures[ uv[0][2] ][0], \
                             self.textures[ uv[0][2] ][1], \
                             self.textures[ uv[0][2] ][2]
         else:
             texture, w, h = 'common/caulk', 32, 32
         
-        U0, V0 = uv[0][0] * w, uv[0][1] * h
-        U1, V1 = uv[1][0] * w, uv[1][1] * h
-        U2, V2 = uv[2][0] * w, uv[2][1] * h
+        u1, v1 = uv[0][0] * w, uv[0][1] * h
+        u2, v2 = uv[1][0] * w, uv[1][1] * h
+        u3, v3 = uv[2][0] * w, uv[2][1] * h
         # for i in range(3):
             # self.nprint( "uv[%d][:]: %.8f, %.8f" % ( i, uv[i][0] * w, uv[i][1] * h ) )
-        # matrix for transferring uv to UV.
-        a = [ [0, 0, 0], [0, 0, 0], [0, 0, 1] ]
-        d = (u1-u0)*v2+(u0-u2)*v1+(u2-u1)*v0
-        a[0][0] = -((v1-v0)*U2+(v0-v2)*U1+(v2-v1)*U0) / d
-        a[0][1] = ((u1-u0)*U2+(u0-u2)*U1+(u2-u1)*U0) / d
-        a[0][2] = ((u0*v1-u1*v0)*U2+(u2*v0-u0*v2)*U1+(u1*v2-u2*v1)*U0) / d
-        a[1][0] = -((v1-v0)*V2+(v0-v2)*V1+(v2-v1)*V0) / d
-        a[1][1] = ((u1-u0)*V2+(u0-u2)*V1+(u2-u1)*V0) / d
-        a[1][2] = ((u0*v1-u1*v0)*V2+(u2*v0-u0*v2)*V1+(u1*v2-u2*v1)*V0) / d
+        # matrix for transferring uv0 to uv.
+        d = (u02-u01)*v03+(u01-u03)*v02+(u03-u02)*v01
+        a = [ [ ((u2-u1)*v03+(u1-u3)*v02+(u3-u2)*v01) / d, \
+                ((u02-u01)*u3+(u01-u03)*u2+(u03-u02)*u1) / d, \
+                -((u01*u2-u02*u1)*v03+(u03*u1-u01*u3)*v02+(u02*u3-u03*u2)*v01) / d ], \
+              [ -((v02-v01)*v3+(v01-v03)*v2+(v03-v02)*v1) / d, \
+                ((u02-u01)*v3+(u01-u03)*v2+(u03-u02)*v1) / d, \
+                ((u01*v02-u02*v01)*v3+(u03*v01-u01*v03)*v2+(u02*v03-u03*v02)*v1) / d ], \
+              [ 0, \
+                0, \
+                1 ]  ];
         # self.nprint( "    matrix from uv0->uv:" )
         # for i in range(2):
             # self.nprint( "        a[%d][0], a[%d][1], a[%d][2] = %.8f, %.8f, %.8f" % ( i, i, i, a[i][0], a[i][1], a[i][2] ) )
@@ -571,12 +570,10 @@ class CBTreeMesh:
         lenX = math.sqrt( a10x * a10x + a10y * a10y )
         lenY = math.sqrt( a01x * a01x + a01y * a01y )
         # Calculating angle.
-        angle = math.acos( a10x / lenX ) * 57.295779513082320876798154814105
-        if ( a10y < 0 ):
-            angle = 360 - angle
+        angle = math.atan2( a10y / lenX, a10x / lenX ) * 57.295779513082320876798154814105
         # self.nprint( "angle = %.8f" % ( angle ) )
         scaleX = 1 / lenX
-        scaleY = 1 / lenY
+        scaleY = 1 / lenY * signScaleY
         # self.nprint( "scaleX, scaleY = %.8f, %.8f" % ( scaleX, scaleY ) )
         ang = angle / 57.295779513082320876798154814105
         c = math.cos( ang )
@@ -588,7 +585,10 @@ class CBTreeMesh:
                 for k in range(3):
                     shift[i][j] = shift[i][j] + inv_ang_sc[i][k] * a[k][j]
         shiftX, shiftY = shift[0][2], shift[1][2]
-        return shiftX, shiftY, angle, scaleX, scaleY        
+        return shiftX, shiftY, angle, scaleX, scaleY   
+        # Operations sequence is the following Scale * Rotation * Shift.
+        # It's because scale is done along rotated axes. 
+        # And shift is done in texture pixels, not in units along rotated axes.
     
     # nexuizPath for texture path subtracting.
     # props for texture overrides.
